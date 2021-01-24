@@ -8,8 +8,6 @@ detection whether a point belongs to the map, and reading value at a particular 
 import datetime
 import ee
 import os
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
 from PIL import Image
 import time
 from osgeo import gdal

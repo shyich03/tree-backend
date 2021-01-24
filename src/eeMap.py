@@ -8,8 +8,6 @@ It allows creation of multiple layers on the map and controls used for moving an
 import datetime
 import ee
 import os
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
 from PIL import Image
 import time
 from osgeo import gdal

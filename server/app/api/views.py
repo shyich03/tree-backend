@@ -6,7 +6,8 @@ from django.http import HttpResponse
 from rest_framework.response import Response
 from django.core.files import File
 import sys
-sys.path.insert(0, "C:/Users/shyic/Projects/TreeCertificates/src")
+import util
+sys.path.insert(0, util.path)
 from CertificationInterface import CertificationInterface
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView

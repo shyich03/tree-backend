@@ -13,8 +13,6 @@ from google import resumable_media
 import datetime
 import ee
 import os
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
 from PIL import Image
 from osgeo import gdal
 import numpy as np

@@ -14,43 +14,21 @@ decribing the state of the forest, calculates the amount of carbon stored inside
 If not, the application creates new certificate for the forest storing both area information and the amount of carbon. It is then possible to modify the certificate or recalculate
 it in case that the amount of carbon stored has changed(for example because some trees were cut).
 
-## Installing
-### Step 0.
-In order to run the application, you need to have installed Anaconda3 terminal with python 3.7 on a Windows device.
 
-### Step 1.
-Recreate the enviroment used by:
-```
-conda env create -f environment.yml
-```
-Activate using
-```
-conda activate gdal_test
-```
-
-### Step 2.
-As the application uses the earth engine it is necessary to first create an account at 
-* https://console.developers.google.com/ 
-
-and also register at 
-* https://earthengine.google.com/signup/. 
-
-It should take less then 24 hours to receive the authorisation.
-Inside of the develepers console you should create a new Earth Engine API and download client_secrets.json file using the download button as described here:
-* https://stackoverflow.com/questions/40136699/using-google-api-for-python-where-do-i-get-the-client-secrets-json-file-from
-
-Finally replace the exisiting client_secrets.json file inside of TreeCertificates with the newly created one.
-
-### Step 3.
-In order to upload data to Google drive, the application asks for a file id. It can be any file from your google drive account. You can just select the file and copy the id from the url.
-
-### Step 4.
 You nee to download AVITABILE map from 
 *http://lucid.wur.nl/storage/downloads/high-carbon-ecosystems/Avitabile_AGB_Map.zip
-and put Avitabile_AGB_Map.tif file to into TreeCertificates folder.
+and put Avitabile_AGB_Map.tif file to into src folder.
 
-### Step 5.
-You can then run the application using:
-```
-python CertificationDemo.py
-```
+pip install requirement.txt
+
+change path to treeinterface in server/app/api/view.py
+
+download gdal
+https://github.com/domlysz/BlenderGIS/wiki/How-to-install-GDAL
+
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver 
+
+create to Alan Marko for certicates and earth engine files integration

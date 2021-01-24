@@ -9,4 +9,8 @@ server/files/
 src/files/
 .vscode/
 src/Avitabile_AGB_Map.tif
-
+*.pyo
+*.pyc
+server/db.sqlite3
+server/app/migrations
+server/util.py
