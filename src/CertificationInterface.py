@@ -43,6 +43,7 @@ from google.cloud import storage
 
 from constants import cell_size
 from  constants import real_cell_size
+import util
 
 
 class CertificationInterface:
@@ -50,7 +51,8 @@ class CertificationInterface:
         # print("Please log in to your google earth engine account.")
         # ee.Authenticate()
         # ee.Initialize()
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/shyic/Projects/TreeCertificates/key/woven-grail-248317-4b9659d1c442.json"
+        print(util.service_account_path)
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = util.service_account_path
 
         service_account = 'trees-385@woven-grail-248317.iam.gserviceaccount.com'
         credentials = ee.ServiceAccountCredentials(service_account, '../key/woven-grail-248317-4b9659d1c442.json')
