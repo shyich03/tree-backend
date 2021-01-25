@@ -40,7 +40,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.cloud import storage
-
+import util
 from constants import cell_size
 from  constants import real_cell_size
 
@@ -50,7 +50,7 @@ class CertificationInterface:
         # print("Please log in to your google earth engine account.")
         # ee.Authenticate()
         # ee.Initialize()
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/shyic/Projects/TreeCertificates/key/woven-grail-248317-4b9659d1c442.json"
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = util.path_key + "woven-grail-248317-4b9659d1c442.json"
 
         service_account = 'trees-385@woven-grail-248317.iam.gserviceaccount.com'
         credentials = ee.ServiceAccountCredentials(service_account, '../key/woven-grail-248317-4b9659d1c442.json')
