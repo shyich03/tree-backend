@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Forest, FunderUser, User, OwnerUser, AuthUser
+from .models import Forest, FunderUser, User, OwnerUser, AuthUser, Region
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
@@ -41,6 +41,7 @@ admin.site.register(Forest)
 admin.site.register(FunderUser)
 admin.site.register(OwnerUser)
 admin.site.register(AuthUser)
+admin.site.register(Region)
 admin.site.register(User, UserAdmin)
 
 # Register your models here.

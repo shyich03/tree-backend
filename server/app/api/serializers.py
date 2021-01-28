@@ -55,3 +55,9 @@ class RegionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Region
         fields = "__all__"
+
+class ForestRegionSerializer(serializers.ModelSerializer):
+    regions = RegionSerializer(many=True, read_only=True)
+    class Meta: 
+        model = Region
+        fields = ["regions"]

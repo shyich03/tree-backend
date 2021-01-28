@@ -26,6 +26,10 @@ change path to treeinterface in server/app/api/view.py
 download gdal
 https://github.com/domlysz/BlenderGIS/wiki/How-to-install-GDAL
 
+create a key folder under the project root folder
+download your google service account json file
+create a util.py file under the server folder
+add variables path and path_key, representing path to CertificateInterface.py file and path to the service account json file
 python manage.py makemigrations
 python manage.py migrate
 python manage.py createsuperuser

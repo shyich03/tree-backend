@@ -60,7 +60,7 @@ class Forest(models.Model):
     def __str__(self):
         return self.name
 class Region(models.Model):
-    description = models.CharField(max_length=200)
+    description = models.CharField(max_length=200, blank=True)
     attr1 = models.IntegerField()
     attr2 = models.IntegerField()
     attr3 = models.IntegerField()

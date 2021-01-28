@@ -11,7 +11,9 @@ sys.path.insert(0, util.path)
 from CertificationInterface import CertificationInterface
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
-from rest_framework import authentication, permissions
+from rest_framework import authentication, permissions, generics, mixins
+import numpy as np
+import json
 
 class ForestViewSet(ModelViewSet):
     queryset = Forest.objects.all()
@@ -84,19 +86,51 @@ class UserViewSet(ModelViewSet):
         # elif (request.data.type=="login"):
         #     return "0"
 
-class CreateRegionsView(ViewSet):
+class CreateRegionsView(generics.CreateAPIView):
+    # serializer_class = RegionSerializer
+    # queryset = Region.objects.all()
     # Authorization: Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b
-    # authentication_classes = [authentication.TokenAuthentication]
-    def Create(self, request, format=None):
-        imageMap = request.data.get("image_map")
-        forest = Forest.object.get(id=request.data.get("forest_id"))
+    authentication_classes = [authentication.TokenAuthentication]
+    def create(self, request, *args, **kwargs):
+        print("create region")
+        image_map = np.array(request.data.get("image_map"))
+        print(request.data)
+        print(request.data.get("forest_id"))
+        forest = Forest.objects.get(id=request.data.get("forest_id"))
+        print("pk", forest.pk)
+        all_data = request.data.get("data")
+        block_size = request.data.get("block_size")
         for i in range(1,4):
-            data = request.data.get(str(i))
+            data = all_data[i-1]
             user = request.user
-            s = RegionSerializer(data={**data, 'forest':forest})
+            print(image_map,np.where(image_map==i-1, 1,0))
+            print(np.where(image_map==i, 1,0).tolist())
+            print(json.dumps(np.where(image_map==i-1, 1,0).tolist()))
+            s = RegionSerializer(data={
+                **data, 
+                'forest':forest.pk, 
+                'block_size': block_size,
+                'area': json.dumps(np.where(image_map==i-1, 1,0).tolist())
+            })
             s.is_valid(raise_exception=False)
+            print (s.errors,"3")
             s.save()
         return HttpResponse(status=200)
+
+class ForestRegionView(generics.RetrieveAPIView):
+    # serializer_class = ForestRegionSerializer
+    # queryset = Forest.objects.all()
+    authentication_classes = [authentication.TokenAuthentication]
+    # def get_queryset(self):
+    #     Forest.object
+    def retrieve(self, request, *args, **kargs):
+        print("get single forest", kargs.get('pk'))
+        pk= kargs.get('pk')
+        region = Region.objects.filter(forest=pk)
+        print(region)
+        s = RegionSerializer(region, many=True)
+        return Response(s.data)
+
 
 
 
