@@ -103,14 +103,14 @@ class CreateRegionsView(generics.CreateAPIView):
         for i in range(1,4):
             data = all_data[i-1]
             user = request.user
-            print(image_map,np.where(image_map==i-1, 1,0))
-            print(np.where(image_map==i, 1,0).tolist())
-            print(json.dumps(np.where(image_map==i-1, 1,0).tolist()))
+            # print(image_map,np.where(image_map==i, 1,0))
+            # print(np.where(image_map==i, 1,0).tolist())
+            # print(json.dumps(np.where(image_map==i, 1,0).tolist()))
             s = RegionSerializer(data={
                 **data, 
                 'forest':forest.pk, 
                 'block_size': block_size,
-                'area': json.dumps(np.where(image_map==i-1, 1,0).tolist())
+                'area': json.dumps(np.where(image_map==i, 1,0).tolist())
             })
             s.is_valid(raise_exception=False)
             print (s.errors,"3")
