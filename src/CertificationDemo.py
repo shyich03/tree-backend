@@ -21,7 +21,7 @@ import sys
 
 ce=CertificateIndexer()
 lr=CertificationInterface()
-# cm=CertificateMaker()
+cm=CertificateMaker()
 
 def makeCertificate(res):
     print('The total amount of carbon stored in the selected area is ' + str(res[1]) + ' Mg')
@@ -38,9 +38,9 @@ def makeCertificate(res):
     if ce.checkMarkingCorrectness(res):
         print("No conflicting certificates found.")
         print("Recording the new hash value.")
-        ce.writeHashValue(bytearray(h.digest()), res)
+        ce.writeHashValue( res)
         print()
-        cm.modifyCertificate(h)
+        cm.createCertificate(h)
         print()
     else:
         print("Conflicting certificates found.")

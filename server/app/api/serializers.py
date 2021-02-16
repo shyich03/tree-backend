@@ -49,7 +49,7 @@ class FunderUserSerializer(serializers.ModelSerializer):
 class ForestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Forest
-        fields = ['id', 'name','description','lat1', 'lat2', 'long1', 'long2', 'owner', 'varified', 'gee_image', 'gee_loss']
+        fields = ['id', 'name','description','lat1', 'lat2', 'long1', 'long2', 'owner', 'varified', 'gee_image', 'gee_loss', 'maps_image', 'metadata_file']
 
 class RegionSerializer(serializers.ModelSerializer):
     class Meta:

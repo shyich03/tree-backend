@@ -43,7 +43,6 @@ from google.cloud import storage
 import util
 from constants import cell_size
 from  constants import real_cell_size
-import util
 
 
 class CertificationInterface:
@@ -228,7 +227,7 @@ class CertificationInterface:
         self.x2 = self.tidyCoordinate(self.x2)
 
         print()
-        self.file_name="img"+str(self.y1)+str(self.x1)
+        self.file_name="img"+str(self.y1)+str(self.x1)+str(self.y2)+str(self.x2)
         if not os.path.exists("files/"+self.file_name + '.png'):
             print("Downloading tree cover data to bucket:")
             self.uploadToDrive(self.mapa,self.file_name,self.x1,self.y1,self.x2,self.y2)
@@ -245,6 +244,7 @@ class CertificationInterface:
 
         #input("Please select area to work with")
         # print(self.readSelectedArea(self.file_name,self.x1,self.y1,self.x2,self.y2))
+        # return self.readSelectedArea(self.file_name,self.x1,self.y1,self.x2,self.y2)
         return self.file_name
 
 

@@ -13,13 +13,14 @@ from algosdk.v2client import indexer
 import json
 import time
 import base64
-from algosdk import algod
+from algosdk.v2client import algod
 from algosdk import mnemonic
 from algosdk import transaction
 import hashlib
 import Algorand
 import numpy as np
 import pickle
+from pprint import pprint
 
 class SavedHash(object):
     def __init__(self,bytehash,value):
@@ -28,29 +29,33 @@ class SavedHash(object):
 
 class CertificateIndexer:
     def __init__(self):
-        self.myindexer = indexer.IndexerClient(indexer_token="", indexer_address="https://testnet-algorand.api.purestake.io/idx2")
+        headers = {
+            "X-API-Key": "zLAOcinLq31BhPezSnHQL3NF7qBwHtku6XwN8igq",
+        }
+        self.myindexer = indexer.IndexerClient("", "https://testnet-algorand.api.purestake.io/idx2", headers)
         self.savedHashes=[]
         self.getHashValues()
 
-    def getAllCertificateHashes(self):
-        nexttoken = ""
-        numtx = 1
+    # def getAllCertificateHashes(self):
+    #     nexttoken = ""
+    #     numtx = 1
 
-        hashes=[]
+    #     hashes=[]
 
-        while (numtx > 0):
-            response = self.myindexer.search_transactions_by_address(
-                    address="XIU7HGGAJ3QOTATPDSIIHPFVKMICXKHMOR2FJKHTVLII4FAOA3CYZQDLG4",
-                    start_time="2020-07-07T10:00:00-05:00",
-                    next_page=nexttoken)
-            transactions = response['transactions']
-            numtx = len(transactions)
-            if (numtx > 0):
-                nexttoken = response['next-token']
-                hash=response['metadata_hash']
-                hashes.append(hash)
-
-        return hashes
+    #     while (numtx > 0):
+    #         response = self.myindexer.search_transactions_by_address(
+    #                 address="Q736QAELPY4AQSXOF3KJBRHCKA33OJE6O5HQSEFSZYFGDSYZCZTOR6UTPE",
+    #                 start_time="2020-07-07T10:00:00-05:00",
+    #                 next_page=nexttoken)
+    #         transactions = response['transactions']
+    #         numtx = len(transactions)
+    #         if (numtx > 0):
+    #             # pprint(response['transactions'][0:2])
+    #             nexttoken = response['next-token']
+    #             hash=response['transactions'][0]['asset-config-transaction']['params']['metadata-hash']
+    #             hashes.append(hash)
+    #     pprint("all certificate hashes", hashes)
+    #     return hashes
 
     def getAllHashes(self):
         #print("getAllHashes")
@@ -66,7 +71,8 @@ class CertificateIndexer:
                 break
         return savedHashes
 
-    def writeHashValue(self,hash,data):
+    def writeHashValue(self,data):
+        hash = bytearray(hashlib.sha256(str(data).encode()).digest())
         output=open('hashes', 'ab')
         sh=SavedHash(hash,data)
         pickle.dump(sh,output,pickle.HIGHEST_PROTOCOL)
@@ -86,11 +92,11 @@ class CertificateIndexer:
         return self.savedHashes
 
     def valueOfHash(self, hash):
-        #self.savedHashes=self.getHashValues()
 
         for sh in self.savedHashes:
             if sh.bytehash == hash:
-                #print("found")
+                print("found with value")
+                pprint(sh)
                 return sh.value
         #print("not foung")
         return None
@@ -126,13 +132,17 @@ class CertificateIndexer:
         return False
 
     def checkMarkingCorrectness(self,marking):
+        print("checking correctness of ", marking)
         self.getHashValues()
-        certificateHashes=self.getAllHashes()#self.getAllCertificateHashes()
-        savedHashes=self.getAllHashes()
+        certificateHashes=self.savedHashes#self.getAllCertificateHashes()
+        # pprint(certificateHashes)
         squareLists=[]
+        pprint([x.value for x in certificateHashes])
         for cerHash in certificateHashes:
-            value=self.valueOfHash(cerHash)
-            squareLists.append(self.getListOfSquares(value))
+            # check if cerHash is in self.saveHashes, value is none or hash
+            # value=self.valueOfHash(cerHash.bytehash)
+            # print(value)
+            squareLists.append(self.getListOfSquares(cerHash.value))
 
         newSquares=self.getListOfSquares(marking)
 

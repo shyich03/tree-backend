@@ -50,6 +50,8 @@ class Forest(models.Model):
     # GEEtif = models.FileField( upload_to=settings.MEDIA_ROOT, null=True, blank=True)
     gee_image = models.FileField( upload_to=settings.MEDIA_ROOT, null=True, blank=True) #filename
     gee_loss = models.FileField( upload_to=settings.MEDIA_ROOT, null=True, blank=True) #filename
+    maps_image = models.FileField( upload_to=settings.MEDIA_ROOT, null=True, blank=True) #filename
+    metadata_file = models.FileField( upload_to=settings.MEDIA_ROOT, null=True, blank=True) #filename
     lat1 = models.FloatField()
     lat2 = models.FloatField()
     long1 = models.FloatField()
@@ -60,6 +62,7 @@ class Forest(models.Model):
     def __str__(self):
         return self.name
 class Region(models.Model):
+    id = models.AutoField(primary_key=True)
     description = models.CharField(max_length=200, blank=True)
     attr1 = models.IntegerField()
     attr2 = models.IntegerField()
@@ -68,4 +71,4 @@ class Region(models.Model):
     area = JSONField()
     block_size = models.FloatField()
     forest = models.ForeignKey(Forest, on_delete=models.CASCADE, related_name="region")
-# Create your models here.
+    

@@ -9,7 +9,7 @@ The demo log-ins to pre-created account specified by the 25 word passphrase.
 import json
 import time
 import base64
-from algosdk import algod
+from algosdk.v2client import algod
 from algosdk import mnemonic
 from algosdk import transaction
 
@@ -17,20 +17,21 @@ from algosdk import transaction
 def wait_for_confirmation(algod_client, txid):
     while True:
         txinfo = algod_client.pending_transaction_info(txid)
-        if txinfo.get('round') and txinfo.get('round') > 0:
-            print("Transaction {} confirmed in round {}.".format(txid, txinfo.get('round')))
+        if txinfo.get('confirmed-round') and txinfo.get('confirmed-round') > 0:
+            print("Transaction {} confirmed in round {}.".format(txid, txinfo.get('confirmed-round')))
             break
         else:
             print("Waiting for confirmation...")
-            algod_client.status_after_block(algod_client.status().get('lastRound') + 1)
+            # print(algod_client.status().__dict__)
+            algod_client.status_after_block(algod_client.status().get('last-round') + 1)
     return txinfo
 
 
 def algorandSequence():
-    algod_address = "https://testnet-algorand.api.purestake.io/ps1"
+    algod_address = "https://testnet-algorand.api.purestake.io/ps2"
     algod_token = ""
     headers = {
-        "X-API-Key": "5K5TIs5wJtaqBNHNfOyya2mxDj9mQBEkYAqWgu09",
+        "X-API-Key": "zLAOcinLq31BhPezSnHQL3NF7qBwHtku6XwN8igq",
     }
 
     algod_client = algod.AlgodClient(algod_token, algod_address, headers)

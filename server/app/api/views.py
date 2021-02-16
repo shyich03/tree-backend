@@ -9,11 +9,15 @@ import sys
 import util
 sys.path.insert(0, util.path)
 from CertificationInterface import CertificationInterface
+from CertificateIndexer import CertificateIndexer
+from CertificateMaker import CertificateMaker
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework import authentication, permissions, generics, mixins
 import numpy as np
 import json
+import urllib.request
+import shutil
 
 class ForestViewSet(ModelViewSet):
     queryset = Forest.objects.all()
@@ -38,9 +42,16 @@ class ForestViewSet(ModelViewSet):
         gee_loss = File(open('files/'+filename+'loss.png', 'rb'))
         token = request.data['user_token']
         user = Token.objects.get(key=token).user
-        print("")
+        maps_image_url = request.data.pop('maps_image')
+        print(maps_image_url)
+        # with urllib.request.urlopen(maps_image_url) as response, open('satelite.png', 'wb') as out_file:
+        #     shutil.copyfileobj(response, out_file)
+        a=urllib.request.urlretrieve(maps_image_url, filename='files/'+filename+'satelite.png')
+        # print(a)
+        maps_image = File(open(a[0], 'rb'))
         s = self.get_serializer(data={
             **request.data, 
+            'maps_image': maps_image,
             'gee_image': gee_image,
             'gee_loss': gee_loss,
             'owner': user})
@@ -51,6 +62,9 @@ class ForestViewSet(ModelViewSet):
         print ("4")
         headers = self.get_success_headers(s.data)
         print ("5")
+        gee_image.close()
+        gee_loss.close()
+        maps_image.close()
         return Response(s.data)
         # elif (request.data.type=="login"):
         #     return "0"
@@ -123,16 +137,31 @@ class ForestRegionView(generics.RetrieveAPIView):
     authentication_classes = [authentication.TokenAuthentication]
     # def get_queryset(self):
     #     Forest.object
-    def retrieve(self, request, *args, **kargs):
-        print("get single forest", kargs.get('pk'))
-        pk= kargs.get('pk')
+    def retrieve(self, request, *args, **kwargs):
+        print("get single forest", kwargs.get('pk'))
+        pk= kwargs.get('pk')
         region = Region.objects.filter(forest=pk)
         print(region)
         s = RegionSerializer(region, many=True)
         return Response(s.data)
 
+# under production
+class FundForestView(generics.UpdateAPIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    def partial_update(self, request, *args, **kwargs):
+        print("funding check")
 
 
-
-
-
+# under production
+class CheckForestView(generics.RetrieveAPIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    def retrieve(self, request, *args, **kwargs):
+        print("funding check")
+        pk= kwargs.get('pk')
+        region = Region.objects.get(pk=pk)
+        forest = Region.forest
+        s= ForestSerializer(forest)
+        CI = CertificateIndexer()
+        correct = CI.checkMarkingCorrectness((region.area, forest.lat1, forest.lat2, forest.long1, forest.long2))
+        if correct:
+            correct=1
