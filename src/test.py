@@ -36,7 +36,7 @@ h=hashlib.sha256(str(res).encode())
 # res = (np.array([[0,0],[0,1]]), 0, 5,6,datetime.datetime.now())
 ci.writeHashValue( res)
 res = (np.array([[1,1],[0,1]]), 0, 5,6,datetime.datetime.now())
-# cm.createCertificate(h)
+cm.createCertificate(h,"name","url")
 cor = ci.checkMarkingCorrectness(res)
 print(cor)
 

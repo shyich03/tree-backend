@@ -36,7 +36,7 @@ class CertificateMaker:
         self.account_info = self.algod_client.account_info(self.my_address)
         print("Account balance: {} microAlgos".format(self.account_info.get('amount')))
 
-    def createCertificate(self,hash):
+    def createCertificate(self,hash,asset_name, asset_url):
         c = Certificate("tmp", "tmp", "tmp", "tmp", "tmp", "tmp", "tmp", "tmp", "tmp", "tmp", "tmp", "tmp", "tmp",
                         "tmp", "tmp", "tmp")
 
@@ -58,13 +58,13 @@ class CertificateMaker:
             "decimals": 0,
             "default_frozen": False,
             "unit_name": "aa",
-            "asset_name": "bb",
+            "asset_name": asset_name,
             "metadata_hash": bytearray(hash.digest()),
             "manager": self.my_address,
             "reserve": self.my_address,
             "freeze": self.my_address,
             "clawback": self.my_address,
-            "url": "https://path/to/my/asset/details",
+            "url": asset_url,
             "flat_fee": True
         }
 
@@ -86,6 +86,7 @@ class CertificateMaker:
         print("The hash of certificate is: {}".format(hash.hexdigest()))
         
         print("Certificate recreated")
+        return  txinfo.asset-index
 
 
     # def revokeCertificate(self):

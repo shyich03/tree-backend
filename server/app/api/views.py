@@ -18,6 +18,8 @@ import numpy as np
 import json
 import urllib.request
 import shutil
+import datetime
+import hashlib
 
 class ForestViewSet(ModelViewSet):
     queryset = Forest.objects.all()
@@ -114,9 +116,16 @@ class CreateRegionsView(generics.CreateAPIView):
         print("pk", forest.pk)
         all_data = request.data.get("data")
         block_size = request.data.get("block_size")
+        
+        CI = CertificateIndexer()
         for i in range(1,4):
             data = all_data[i-1]
             user = request.user
+            bitmap =np.where(image_map==i, 1,0)
+            res = (bitmap, 1, ,forest.lat1, forest.long1, datetime.datetime.now())
+            # ci.checkMarkingCorrectness(res)
+    # add return error if dup
+            ci.writeHashValue( res)
             # print(image_map,np.where(image_map==i, 1,0))
             # print(np.where(image_map==i, 1,0).tolist())
             # print(json.dumps(np.where(image_map==i, 1,0).tolist()))
@@ -124,7 +133,8 @@ class CreateRegionsView(generics.CreateAPIView):
                 **data, 
                 'forest':forest.pk, 
                 'block_size': block_size,
-                'area': json.dumps(np.where(image_map==i, 1,0).tolist())
+                'area': json.dumps(bitmap.tolist()),
+                'certificates': json.dumps([])}
             })
             s.is_valid(raise_exception=False)
             print (s.errors,"3")
@@ -146,14 +156,27 @@ class ForestRegionView(generics.RetrieveAPIView):
         return Response(s.data)
 
 # under production
-class FundForestView(generics.UpdateAPIView):
+class FundRegionView(generics.UpdateAPIView):
     authentication_classes = [authentication.TokenAuthentication]
     def partial_update(self, request, *args, **kwargs):
-        print("funding check")
+        print("funding view")
+        pk= kwargs.get('pk')
+        region = Region.objects.get(pk=pk)
+        forest = Region.forest
+        CM = CertificateMaker()
+        data=(region.area,1,forest.lat1, forest.long1, datetime.datetime.now())
+        h=hashlib.sha256(str(data).encode())
+        asset = CM.createCertificate(h, forest.name, "temp url")
+        certificates = json.loads(region.certificates)
+        certificates.append(asset)
+        region.certificates=certificates
+        region.save(update_fields=['certificates'])
+        return Response({"certificates": certificates})
+
 
 
 # under production
-class CheckForestView(generics.RetrieveAPIView):
+class CheckRegionView(generics.RetrieveAPIView):
     authentication_classes = [authentication.TokenAuthentication]
     def retrieve(self, request, *args, **kwargs):
         print("funding check")
@@ -161,7 +184,10 @@ class CheckForestView(generics.RetrieveAPIView):
         region = Region.objects.get(pk=pk)
         forest = Region.forest
         s= ForestSerializer(forest)
+        print('1',s.data['certificates'])
+        print('2', region.certificates)
         CI = CertificateIndexer()
-        correct = CI.checkMarkingCorrectness((region.area, forest.lat1, forest.lat2, forest.long1, forest.long2))
+        correct = CI.checkMarkingCorrectness((region.area, 1,forest.lat1, forest.long1,datetime.datetime.now()))
         if correct:
-            correct=1
+            certificates = json.loads(region.certificates)
+            return Response({"certificates": certificates})

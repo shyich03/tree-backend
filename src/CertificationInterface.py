@@ -43,6 +43,7 @@ from google.cloud import storage
 import util
 from constants import cell_size
 from  constants import real_cell_size
+import threading
 
 
 class CertificationInterface:
@@ -121,6 +122,8 @@ class CertificationInterface:
             print(task.status())
         pb.printProgress(100,100)
         print("finish download to bucket")
+        
+        self.downloadFromDrive(File_Name)
         return
 
 
@@ -228,20 +231,23 @@ class CertificationInterface:
 
         print()
         self.file_name="img"+str(self.y1)+str(self.x1)+str(self.y2)+str(self.x2)
+        
+        t1 = threading.Thread(target=self.uploadToDrive, args=(self.mapa,self.file_name,self.x1,self.y1,self.x2,self.y2))
+        t2 = threading.Thread(target=self.uploadToDrive, args=(self.loss,self.file_name+"loss",self.x1,self.y1,self.x2,self.y2))
+        
         if not os.path.exists("files/"+self.file_name + '.png'):
             print("Downloading tree cover data to bucket:")
-            self.uploadToDrive(self.mapa,self.file_name,self.x1,self.y1,self.x2,self.y2)
-            print("download cover from bucket")
-            self.downloadFromDrive(self.file_name)
+            t1.start()
         else:
             print("already exist")
+
         if not os.path.exists("files/"+self.file_name + 'loss.png'):
             print("Downloading forest loss data:")
-            self.uploadToDrive(self.loss,self.file_name+"loss",self.x1,self.y1,self.x2,self.y2)
-            self.downloadFromDrive(self.file_name+"loss")
+            t2.start()
         else:
             print("loss already exist")
-
+        t1.join()
+        t2.join()
         #input("Please select area to work with")
         # print(self.readSelectedArea(self.file_name,self.x1,self.y1,self.x2,self.y2))
         # return self.readSelectedArea(self.file_name,self.x1,self.y1,self.x2,self.y2)

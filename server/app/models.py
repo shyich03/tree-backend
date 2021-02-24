@@ -70,5 +70,6 @@ class Region(models.Model):
     attr4 = models.IntegerField()
     area = JSONField()
     block_size = models.FloatField()
+    certificates = JSONField()
     forest = models.ForeignKey(Forest, on_delete=models.CASCADE, related_name="region")
     
