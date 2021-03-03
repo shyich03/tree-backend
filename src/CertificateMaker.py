@@ -86,7 +86,7 @@ class CertificateMaker:
         print("The hash of certificate is: {}".format(hash.hexdigest()))
         
         print("Certificate recreated")
-        return  txinfo.asset-index
+        return  txinfo['asset-index']
 
 
     # def revokeCertificate(self):

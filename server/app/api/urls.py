@@ -1,10 +1,11 @@
 from django.urls import path, include
-from .views import ForestViewSet, UserViewSet, CreateRegionsView, ForestRegionView, FundRegionView, CheckRegionView
+from .views import RegionViewSet, ForestViewSet, UserViewSet, CreateRegionsView, ForestRegionView, FundRegionView, CheckRegionView
 from rest_framework import routers
 
 router = routers.DefaultRouter()
 router.register(r'forest', ForestViewSet, basename='forests')
 router.register(r'user', UserViewSet, basename='users')
+router.register(r'region', RegionViewSet, basename='regions')
 # router.register(r'create-regions', CreateRegionsView.as_view(), basename='regions')
 # urlpatterns = router.urls 
 urlpatterns = [

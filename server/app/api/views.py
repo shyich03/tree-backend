@@ -70,7 +70,9 @@ class ForestViewSet(ModelViewSet):
         return Response(s.data)
         # elif (request.data.type=="login"):
         #     return "0"
-
+class RegionViewSet(ModelViewSet):
+    queryset = Region.objects.all()
+    serializer_class = RegionSerializer
 class UserViewSet(ModelViewSet):
     queryset = User.objects.filter(user_type=1)
     # queryset = User.objects.all()
@@ -122,7 +124,7 @@ class CreateRegionsView(generics.CreateAPIView):
             data = all_data[i-1]
             user = request.user
             bitmap =np.where(image_map==i, 1,0)
-            res = (bitmap, 1, ,forest.lat1, forest.long1, datetime.datetime.now())
+            res = (bitmap, 1, forest.lat1, forest.long1, datetime.datetime.now())
             # ci.checkMarkingCorrectness(res)
     # add return error if dup
             ci.writeHashValue( res)
@@ -134,7 +136,7 @@ class CreateRegionsView(generics.CreateAPIView):
                 'forest':forest.pk, 
                 'block_size': block_size,
                 'area': json.dumps(bitmap.tolist()),
-                'certificates': json.dumps([])}
+                'certificates': json.dumps([])
             })
             s.is_valid(raise_exception=False)
             print (s.errors,"3")
@@ -162,12 +164,13 @@ class FundRegionView(generics.UpdateAPIView):
         print("funding view")
         pk= kwargs.get('pk')
         region = Region.objects.get(pk=pk)
-        forest = Region.forest
+        forest = region.forest
         CM = CertificateMaker()
         data=(region.area,1,forest.lat1, forest.long1, datetime.datetime.now())
         h=hashlib.sha256(str(data).encode())
         asset = CM.createCertificate(h, forest.name, "temp url")
-        certificates = json.loads(region.certificates)
+        certificates = region.certificates
+        print(certificates)
         certificates.append(asset)
         region.certificates=certificates
         region.save(update_fields=['certificates'])
