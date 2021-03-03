@@ -51,7 +51,7 @@ class Forest(models.Model):
     gee_image = models.FileField( upload_to=settings.MEDIA_ROOT, null=True, blank=True) #filename
     gee_loss = models.FileField( upload_to=settings.MEDIA_ROOT, null=True, blank=True) #filename
     maps_image = models.FileField( upload_to=settings.MEDIA_ROOT, null=True, blank=True) #filename
-    metadata_file = models.FileField( upload_to=settings.MEDIA_ROOT, null=True, blank=True) #filename
+    metadata_file = models.FileField( upload_to='files/', null=True, blank=True) #filename
     lat1 = models.FloatField()
     lat2 = models.FloatField()
     long1 = models.FloatField()

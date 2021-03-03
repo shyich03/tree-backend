@@ -31,20 +31,23 @@ class ForestViewSet(ModelViewSet):
     #     serializer = self.get_serializer(instance)
     #     return Response(serializer.data)
     def create(self, request, *args, **kwargs):
+        data={}
+        for key, value in request.data.lists():
+            data[key] = value[0]
         # if (request.data.type=="register"):
-        print ("1", request.data)
+        print ("1", data)
         c = CertificationInterface()
-        print(type(request.data.get("lat1")))
+        print(type(data.get("lat1")))
         filename = c.getArea(
-            request.data.get("long1"), 
-            request.data.get("long2"),
-            request.data.get("lat1"), 
-            request.data.get("lat2"))
+            float(data.get("long1")), 
+            float(data.get("long2")),
+            float(data.get("lat1")), 
+            float(data.get("lat2")))
         gee_image = File(open('files/'+filename+'.png', 'rb'))
         gee_loss = File(open('files/'+filename+'loss.png', 'rb'))
-        token = request.data['user_token']
+        token = data['user_token']
         user = Token.objects.get(key=token).user
-        maps_image_url = request.data.pop('maps_image')
+        maps_image_url = data.pop('maps_image')
         print(maps_image_url)
         # with urllib.request.urlopen(maps_image_url) as response, open('satelite.png', 'wb') as out_file:
         #     shutil.copyfileobj(response, out_file)
@@ -52,7 +55,7 @@ class ForestViewSet(ModelViewSet):
         # print(a)
         maps_image = File(open(a[0], 'rb'))
         s = self.get_serializer(data={
-            **request.data, 
+            **data, 
             'maps_image': maps_image,
             'gee_image': gee_image,
             'gee_loss': gee_loss,
