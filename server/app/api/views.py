@@ -130,7 +130,7 @@ class CreateRegionsView(generics.CreateAPIView):
             res = (bitmap, 1, forest.lat1, forest.long1, datetime.datetime.now())
             # ci.checkMarkingCorrectness(res)
     # add return error if dup
-            ci.writeHashValue( res)
+            CI.writeHashValue( res)
             # print(image_map,np.where(image_map==i, 1,0))
             # print(np.where(image_map==i, 1,0).tolist())
             # print(json.dumps(np.where(image_map==i, 1,0).tolist()))

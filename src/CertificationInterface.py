@@ -114,12 +114,12 @@ class CertificationInterface:
         counter=0
         pb=ProgressBar.ProgressBar()
         while task.status()['state'] in ['READY', 'RUNNING']:
-            print(task.status())
+            # print(task.status())
             pb.printProgress(min(counter,66),66)
             time.sleep(1)
-            print(task, task.status())
+            # print(task, task.status())
             counter+=1
-            print(task.status())
+            # print(task.status())
         pb.printProgress(100,100)
         print("finish download to bucket")
         
@@ -234,20 +234,23 @@ class CertificationInterface:
         
         t1 = threading.Thread(target=self.uploadToDrive, args=(self.mapa,self.file_name,self.x1,self.y1,self.x2,self.y2))
         t2 = threading.Thread(target=self.uploadToDrive, args=(self.loss,self.file_name+"loss",self.x1,self.y1,self.x2,self.y2))
-        
-        if not os.path.exists("files/"+self.file_name + '.png'):
+        fileExist = not os.path.exists("files/"+self.file_name + '.png')
+        lossExist = not os.path.exists("files/"+self.file_name + 'loss.png')
+        if fileExist:
             print("Downloading tree cover data to bucket:")
             t1.start()
         else:
             print("already exist")
 
-        if not os.path.exists("files/"+self.file_name + 'loss.png'):
+        if lossExist:
             print("Downloading forest loss data:")
             t2.start()
         else:
             print("loss already exist")
-        t1.join()
-        t2.join()
+        if fileExist:
+            t1.join()
+        if lossExist:
+            t2.join()
         #input("Please select area to work with")
         # print(self.readSelectedArea(self.file_name,self.x1,self.y1,self.x2,self.y2))
         # return self.readSelectedArea(self.file_name,self.x1,self.y1,self.x2,self.y2)
