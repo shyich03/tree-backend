@@ -22,16 +22,16 @@ class OwnerUserSerializer(serializers.ModelSerializer):
         return user
 
 class AuthUserSerializer(serializers.ModelSerializer):
-    algorand_id = serializers.CharField(source='auth_detail.algorand_id')
+    # algorand_id = serializers.CharField(source='auth_detail.algorand_id')
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'password', 'first_name', 'last_name', 'user_type', 'algorand_id']
+        fields = ['id', 'email', 'username', 'password', 'first_name', 'last_name', 'user_type']
     def create(self, validated_data):
         user = User.objects.create(**validated_data)
         user.set_password(validated_data['password'])
         user.save()
         print(validated_data)
-        AuthUser.objects.create(user=user, algorand_id=validated_data['algorand_id'])
+        AuthUser.objects.create(user=user)
         return user
 
 class FunderUserSerializer(serializers.ModelSerializer):
@@ -49,7 +49,7 @@ class FunderUserSerializer(serializers.ModelSerializer):
 class ForestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Forest
-        fields = ['id', 'name','description','lat1', 'lat2', 'long1', 'long2', 'owner', 'varified', 'gee_image', 'gee_loss', 'maps_image', 'metadata_file']
+        fields = "__all__"
 
 class RegionSerializer(serializers.ModelSerializer):
     class Meta:

@@ -113,6 +113,7 @@ class CreateRegionsView(generics.CreateAPIView):
     # Authorization: Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b
     authentication_classes = [authentication.TokenAuthentication]
     def create(self, request, *args, **kwargs):
+        # integer_fields = ['biodiversity_benefit', 'livelihood_benefit', 'local_benefit', 'carbon_credit_status', 'minised_leakage']
         print("create region")
         image_map = np.array(request.data.get("image_map"))
         print(request.data)
@@ -129,11 +130,21 @@ class CreateRegionsView(generics.CreateAPIView):
             bitmap =np.where(image_map==i, 1,0)
             res = (bitmap, 1, forest.lat1, forest.long1, datetime.datetime.now())
             # ci.checkMarkingCorrectness(res)
-    # add return error if dup
+    # todo: add return error if dup
             CI.writeHashValue( res)
             # print(image_map,np.where(image_map==i, 1,0))
             # print(np.where(image_map==i, 1,0).tolist())
             # print(json.dumps(np.where(image_map==i, 1,0).tolist()))
+            print(data)
+            # for s in integer_fields:
+            #     data[s] = int(data[s])
+            #     print(type(data[s]))
+            # data['carbon_sequestration'] = float(data['carbon_sequestration'])
+            # data['biodiversity_benefit'] = int(data['biodiversity_benefit'])
+            # data['livelihood_benefit'] = int(data['livelihood_benefit'])
+            # data['local_benefit'] = int(data['local_benefit'])
+            # data['carbon_credit_status'] = int(data['carbon_credit_status'])
+            # data['minised_leakage'] = int(data['minised_leakage'])
             s = RegionSerializer(data={
                 **data, 
                 'forest':forest.pk, 
@@ -144,6 +155,9 @@ class CreateRegionsView(generics.CreateAPIView):
             s.is_valid(raise_exception=False)
             print (s.errors,"3")
             s.save()
+        forest.state=forest.STATE_VARIFIED
+        forest.save(update_fields=['state'])
+        # todo: change state to 3 in front end when distribute funding cap
         return HttpResponse(status=200)
 
 class ForestRegionView(generics.RetrieveAPIView):
