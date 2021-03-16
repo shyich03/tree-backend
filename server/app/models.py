@@ -71,6 +71,7 @@ class Forest(models.Model):
     def __str__(self):
         return self.name
 class Region(models.Model):
+    SCALE_NONE = 0
     SCALE_LOW = 1
     SCALE_MED = 2
     SCALE_HIGH = 3
@@ -79,6 +80,7 @@ class Region(models.Model):
     SCALE_IN_HOUSE = 6
     SCALE_3RD_PARTY = 7
     SCALE_CHOICES = (
+        (SCALE_NONE, 'none'),
         (SCALE_LOW, 'low'),
         (SCALE_MED, 'med'),
         (SCALE_HIGH, 'high'),
