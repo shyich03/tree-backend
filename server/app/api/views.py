@@ -76,6 +76,30 @@ class ForestViewSet(ModelViewSet):
 class RegionViewSet(ModelViewSet):
     queryset = Region.objects.all()
     serializer_class = RegionSerializer
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+        
+        if 'funding_goal' in request.data:
+            forest = instance.forest
+            all_regions = forest.region.all()
+            for region in all_regions:
+                if region.funding_goal == None:
+                    return Response(serializer.data)
+            forest.state = Forest.STATE_COMPLETED
+            forest.save(update_fields=['state'])
+            return Response(serializer.data)
+
+        
+        
 class UserViewSet(ModelViewSet):
     queryset = User.objects.filter(user_type=1)
     # queryset = User.objects.all()

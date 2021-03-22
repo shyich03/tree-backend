@@ -35,6 +35,7 @@ class User(AbstractUser):
 class OwnerUser(models.Model):
     user = models.OneToOneField(User, related_name='owner_detail', on_delete=models.CASCADE, primary_key=True)
     paypal_email = models.CharField(max_length=200)
+    organization_name = models.CharField(max_length=200)
 
 class AuthUser(models.Model):
     user = models.OneToOneField(User, related_name='auth_detail', on_delete=models.CASCADE, primary_key=True)

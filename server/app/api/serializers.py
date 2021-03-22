@@ -8,17 +8,20 @@ from rest_framework import serializers
 
 class OwnerUserSerializer(serializers.ModelSerializer):
     paypal_email = serializers.CharField(source='owner_detail.paypal_email')
+    organization_name = serializers.CharField(source='owner_detail.organization_name')
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'password', 'first_name', 'last_name', 'user_type', 'paypal_email']
+        fields = ['id', 'email', 'username', 'password', 'first_name', 'last_name', 'user_type', 'paypal_email', 'organization_name']
     def create(self, validated_data):
         print(validated_data)
-        paypal = validated_data.pop('owner_detail')['paypal_email']
+        owner_detail = validated_data.pop('owner_detail')
+        paypal = owner_detail['paypal_email']
+        organization_name =  owner_detail['organization_name']
         user = User.objects.create(**validated_data)
         user.set_password(validated_data['password'])
         user.save()
         print(validated_data)
-        OwnerUser.objects.create(user=user, paypal_email=paypal)
+        OwnerUser.objects.create(user=user, paypal_email=paypal, organization_name=organization_name)
         return user
 
 class AuthUserSerializer(serializers.ModelSerializer):
@@ -47,6 +50,7 @@ class FunderUserSerializer(serializers.ModelSerializer):
         return user
 
 class ForestSerializer(serializers.ModelSerializer):
+    organization_name = serializers.CharField(source='owner.organization_name', required=False)
     class Meta:
         model = Forest
         fields = "__all__"
