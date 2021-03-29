@@ -20,8 +20,10 @@ import urllib.request
 import shutil
 import datetime
 import hashlib
+from django.db.models.query import QuerySet
 
 class ForestViewSet(ModelViewSet):
+    authentication_classes = [authentication.TokenAuthentication]
     queryset = Forest.objects.all()
     serializer_class = ForestSerializer
     # def retrieve(self, request, *args, **kwargs):
@@ -30,6 +32,31 @@ class ForestViewSet(ModelViewSet):
     #     instance = self.get_object()
     #     serializer = self.get_serializer(instance)
     #     return Response(serializer.data)
+    def get_queryset(self):
+        for f,v in  self.request.GET.items():
+            print(f,v)
+        print("list",self.request.user,self.request.META.get('HTTP_AUTHORIZATION'))
+        token = self.request.META.get('HTTP_AUTHORIZATION').split()[-1]
+        print(token)
+        user = Token.objects.get(key=token).user
+        if user.user_type == 2:
+            print("ow", user)
+            queryset = Forest.objects.filter(owner__user=user)
+        else:
+            queryset = self.queryset
+
+        assert self.queryset is not None, (
+            "'%s' should either include a `queryset` attribute, "
+            "or override the `get_queryset()` method."
+            % self.__class__.__name__
+        )
+        
+        if isinstance(queryset, QuerySet):
+            # Ensure queryset is re-evaluated on each request.
+            queryset = queryset.all()
+        return queryset
+
+
     def create(self, request, *args, **kwargs):
         data={}
         for key, value in request.data.lists():
@@ -138,7 +165,7 @@ class CreateRegionsView(generics.CreateAPIView):
     authentication_classes = [authentication.TokenAuthentication]
     def create(self, request, *args, **kwargs):
         # integer_fields = ['biodiversity_benefit', 'livelihood_benefit', 'local_benefit', 'carbon_credit_status', 'minised_leakage']
-        print("create region")
+        print("create region",request.user)
         image_map = np.array(request.data.get("image_map"))
         print(request.data)
         print(request.data.get("forest_id"))

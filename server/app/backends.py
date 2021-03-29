@@ -14,7 +14,7 @@ class CustomBackend(ModelBackend):
         try:
             user = User.objects.get(username=user_id)
             type_switch = {'funder':1, 'owner':2, 'auth':3}
-            print("2)", user.check_password(password),  user_type,user.user_type, user.user_type  == user_type)
+            # print("2)", user.check_password(password),  user_type,user.user_type, user.user_type  == user_type)
             if user.check_password(password) and (not user_type or (user.user_type and user.user_type  == type_switch.get(user_type))):
                 print('user good', user)
                 return user
