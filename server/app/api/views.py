@@ -182,27 +182,16 @@ class CreateRegionsView(generics.CreateAPIView):
         block_size = request.data.get("block_size")
         
         CI = CertificateIndexer()
-        for i in range(1,4):
-            data = all_data[i-1]
+        print(all_data)
+        for i in range(len(all_data)):
+            data = all_data[i]
             user = request.user
-            bitmap =np.where(image_map==i, 1,0)
+            bitmap =np.where(image_map==i+1, 1,0)
             res = (bitmap, 1, forest.lat1, forest.long1, datetime.datetime.now())
             # ci.checkMarkingCorrectness(res)
     # todo: add return error if dup
             CI.writeHashValue( res)
-            # print(image_map,np.where(image_map==i, 1,0))
-            # print(np.where(image_map==i, 1,0).tolist())
-            # print(json.dumps(np.where(image_map==i, 1,0).tolist()))
             print(data)
-            # for s in integer_fields:
-            #     data[s] = int(data[s])
-            #     print(type(data[s]))
-            # data['carbon_sequestration'] = float(data['carbon_sequestration'])
-            # data['biodiversity_benefit'] = int(data['biodiversity_benefit'])
-            # data['livelihood_benefit'] = int(data['livelihood_benefit'])
-            # data['local_benefit'] = int(data['local_benefit'])
-            # data['carbon_credit_status'] = int(data['carbon_credit_status'])
-            # data['minised_leakage'] = int(data['minised_leakage'])
             s = RegionSerializer(data={
                 **data, 
                 'forest':forest.pk, 
@@ -215,7 +204,6 @@ class CreateRegionsView(generics.CreateAPIView):
             s.save()
         forest.state=forest.STATE_VARIFIED
         forest.save(update_fields=['state'])
-        # todo: change state to 3 in front end when distribute funding cap
         return HttpResponse(status=200)
 
 class ForestRegionView(generics.RetrieveAPIView):
@@ -240,6 +228,9 @@ class FundRegionView(generics.UpdateAPIView):
         pk= kwargs.get('pk')
         region = Region.objects.get(pk=pk)
         forest = region.forest
+        user = request.user
+        print(user)
+        s = FundingSerializer
         CM = CertificateMaker()
         data=(region.area,1,forest.lat1, forest.long1, datetime.datetime.now())
         h=hashlib.sha256(str(data).encode())
