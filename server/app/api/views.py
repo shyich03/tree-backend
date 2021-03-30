@@ -35,13 +35,18 @@ class ForestViewSet(ModelViewSet):
     def get_queryset(self):
         for f,v in  self.request.GET.items():
             print(f,v)
-        print("list",self.request.user,self.request.META.get('HTTP_AUTHORIZATION'))
-        token = self.request.META.get('HTTP_AUTHORIZATION').split()[-1]
+
+        token =self.request.META.get('HTTP_AUTHORIZATION')
+        print("list",token)
+
+        token = token.split()[-1] if token else ""
         print(token)
-        user = Token.objects.get(key=token).user
-        if user.user_type == 2:
-            print("ow", user)
-            queryset = Forest.objects.filter(owner__user=user)
+        
+        if token:
+            user = Token.objects.get(key=token).user
+            if user.user_type == 2 :
+                print("ow", user)
+                queryset = Forest.objects.filter(owner__user=user)
         else:
             queryset = self.queryset
 
