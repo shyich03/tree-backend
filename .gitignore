@@ -14,3 +14,4 @@ src/Avitabile_AGB_Map.tif
 server/db.sqlite3
 server/app/migrations
 server/util.py
+server/hashes

@@ -103,7 +103,15 @@ class Region(models.Model):
     nature_based = models.BooleanField(blank=True)
     area = JSONField(blank=True)
     block_size = models.FloatField(blank=True)
-    certificates = JSONField()
+    # certificates = JSONField()
     funding_goal = models.IntegerField(blank=True, null=True)
     forest = models.ForeignKey(Forest, on_delete=models.CASCADE, related_name="region")
     
+
+class Funding(models.Model):
+    amount = models.FloatField()
+    donor = models.ForeignKey(FunderUser, on_delete=models.CASCADE, related_name="funding")
+    forest = models.ForeignKey(Forest, on_delete=models.CASCADE, related_name="funding")
+    created = models.DateTimeField(auto_now_add=True)
+    certificate = models.CharField(max_length=200)
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, related_name="funding")

@@ -49,19 +49,27 @@ class FunderUserSerializer(serializers.ModelSerializer):
         FunderUser.objects.create(user=user)
         return user
 
+class FundingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Funding
+        fields = "__all__"
 class ForestSerializer(serializers.ModelSerializer):
     organization_name = serializers.CharField(source='owner.organization_name', required=False)
+    funding = FundingSerializer(many=True, required=False)
     class Meta:
         model = Forest
         fields = "__all__"
 
 class RegionSerializer(serializers.ModelSerializer):
+    funding = FundingSerializer(many=True, required=False)
     class Meta:
         model = Region
         fields = "__all__"
 
-class ForestRegionSerializer(serializers.ModelSerializer):
-    regions = RegionSerializer(many=True, read_only=True)
-    class Meta: 
-        model = Region
-        fields = ["regions"]
+# class ForestRegionSerializer(serializers.ModelSerializer):
+#     regions = RegionSerializer(many=True, read_only=True)
+#     class Meta: 
+#         model = Region
+#         fields = ["regions"]
+
+

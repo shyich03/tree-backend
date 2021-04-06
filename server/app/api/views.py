@@ -25,21 +25,21 @@ from django.db.models.query import QuerySet
 class ForestViewSet(ModelViewSet):
     authentication_classes = [authentication.TokenAuthentication]
     queryset = Forest.objects.all()
-    serializer_class = ForestSerializer
-    # def retrieve(self, request, *args, **kwargs):
+    serializer_class = ForestSerializer #(queryset, many=True)
+    def retrieve(self, request, *args, **kwargs):
         
         
-    #     instance = self.get_object()
-    #     serializer = self.get_serializer(instance)
-    #     return Response(serializer.data)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
     def get_queryset(self):
         for f,v in  self.request.GET.items():
             print(f,v)
 
         token =self.request.META.get('HTTP_AUTHORIZATION')
-        print("list",token)
+        # print("list",token)
 
-        token = token.split()[-1] if token else ""
+        # token = token.split()[-1] if token else ""
         print(token)
         
         if token:
@@ -182,7 +182,7 @@ class CreateRegionsView(generics.CreateAPIView):
         block_size = request.data.get("block_size")
         
         CI = CertificateIndexer()
-        print(all_data)
+        print(request.user)
         for i in range(len(all_data)):
             data = all_data[i]
             user = request.user
@@ -228,18 +228,34 @@ class FundRegionView(generics.UpdateAPIView):
         pk= kwargs.get('pk')
         region = Region.objects.get(pk=pk)
         forest = region.forest
-        user = request.user
+        token =self.request.META.get('HTTP_AUTHORIZATION')
+        print(token)
+        user = Token.objects.get(key=token).user
         print(user)
-        s = FundingSerializer
         CM = CertificateMaker()
         data=(region.area,1,forest.lat1, forest.long1, datetime.datetime.now())
         h=hashlib.sha256(str(data).encode())
         asset = CM.createCertificate(h, forest.name, "temp url")
-        certificates = region.certificates
+        # certificates = region.certificates
+        # print(certificates)
+        # certificates.append(asset)
+        print(request.data)
+        s = FundingSerializer(data={
+            'donor':user,
+            'forest':forest.pk,
+            'amount':request.data.get('amount'),
+            'certificate':asset,
+            'region': pk
+        })
+        s.is_valid(raise_exception=False)
+        print (s.errors,"3")
+        s.save()
+
+        # region.certificates=certificates
+        # region.save(update_fields=['certificates'])
+        forest_fundings = list(forest.funding.all())
+        certificates = [{'certificate': x.certificate, 'amount': x.amount} for x in forest_fundings]
         print(certificates)
-        certificates.append(asset)
-        region.certificates=certificates
-        region.save(update_fields=['certificates'])
         return Response({"certificates": certificates})
 
 
