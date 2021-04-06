@@ -47,6 +47,9 @@ class ForestViewSet(ModelViewSet):
             if user.user_type == 2 :
                 print("ow", user)
                 queryset = Forest.objects.filter(owner__user=user)
+            elif user.user_type == 1 :
+                print("fu", user)
+                queryset = Forest.objects.filter(state=Forest.STATE_COMPLETED)
             else:
                 queryset = self.queryset
         else:
