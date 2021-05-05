@@ -1,6 +1,8 @@
 """
 CertificateMaker.py
 
+This is used in views.py
+unfinished
 CertificateMaker.py implemnts core methods for creation, deletion and modification of Algorand certificates
 It also allows possible transactions of certificates between two parties(useful for future implementation of trading of certificates).
 """
@@ -24,7 +26,7 @@ class CertificateMaker:
             # "X-Algo-API-Token": "asdf"
         }
 
-        passphrase = "session lizard tide improve benefit have throw stove miss pave captain spread suffer appear barely provide cheese blade stock axis depart answer budget absorb axis"
+        passphrase = "wedding shine wash pet apple force car taxi illegal scrap walnut virtual champion display glimpse barrel pioneer chat finish twenty increase hope patrol about stage"
         self.private_key = mnemonic.to_private_key(passphrase)
         self.my_address = mnemonic.to_public_key(passphrase)
         print("My address: {}".format(self.my_address))
@@ -36,7 +38,7 @@ class CertificateMaker:
         self.account_info = self.algod_client.account_info(self.my_address)
         print("Account balance: {} microAlgos".format(self.account_info.get('amount')))
 
-    def createCertificate(self,hash,asset_name, asset_url):
+    def createCertificate(self,hash,asset_name, asset_url, amount, receive_address):
         c = Certificate("tmp", "tmp", "tmp", "tmp", "tmp", "tmp", "tmp", "tmp", "tmp", "tmp", "tmp", "tmp", "tmp",
                         "tmp", "tmp", "tmp")
 
@@ -54,10 +56,10 @@ class CertificateMaker:
             "first": first,
             "last": last,
             "gh": gh,
-            "total": 1000,
+            "total": amount,
             "decimals": 0,
             "default_frozen": False,
-            "unit_name": "aa",
+            "unit_name": asset_name,
             "asset_name": asset_name,
             "metadata_hash": bytearray(hash.digest()),
             "manager": self.my_address,
@@ -81,11 +83,43 @@ class CertificateMaker:
         #print(txinfo.keys())
         pprint(("txinfo", txinfo))
         # asset_id = txinfo.txn.
-        account_info = self.algod_client.account_info(self.my_address)
+        # account_info = self.algod_client.account_info(self.my_address)
         # pprint(account_info)
         print("The hash of certificate is: {}".format(hash.hexdigest()))
         
         print("Certificate recreated")
+
+        # this is not yet working, not being called in the working version
+        if receive_address:
+            index = txn.index
+            params = self.algod_client.suggested_params()
+            # pprint(params.__dict__)
+            first = params.first
+            last = params.last
+            gen = params.gen
+            gh = params.gh
+            min_fee = params.min_fee
+
+            data = {
+                "sender": self.my_address,
+                "fee": min_fee,
+                "first": first,
+                "last": last,
+                "gh": gh,
+                "receiver": receive_address,
+                "amt": amount,
+                "index": index,
+                "flat_fee": True
+            }
+            ttxn = transaction.AssetTransferTxn(**data)
+            sttxn = ttxn.sign(self.private_key)
+
+            print("Asset Transfer")
+
+            ttxid = self.algod_client.send_transaction(sttxn)
+
+            ttxinfo = Algorand.wait_for_confirmation(self.algod_client, ttxid)
+            pprint(("ttxinfo", ttxinfo))
         return  txinfo['asset-index']
 
 

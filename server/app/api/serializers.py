@@ -48,7 +48,10 @@ class FunderUserSerializer(serializers.ModelSerializer):
         print(validated_data)
         FunderUser.objects.create(user=user)
         return user
-
+class FunderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FunderUser
+        fields = "__all__"
 class FundingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Funding

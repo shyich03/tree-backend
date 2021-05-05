@@ -47,6 +47,11 @@ INSTALLED_APPS = [
     'app',
 ]
 SITE_ID = 1
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES' :[
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
 AUTHENTICATION_BACKENDS = [
     'app.backends.CustomBackend',
 ]

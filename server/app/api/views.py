@@ -1,3 +1,4 @@
+# where most of the backend apis are defined
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from .serializers import *
 from django.shortcuts import get_object_or_404
@@ -22,10 +23,13 @@ import datetime
 import hashlib
 from django.db.models.query import QuerySet
 
+# access / create forests or single forest
+# if accessed by owner, returns all owner's forest, by funder, all state3  (ready) forest, auth, allforest
 class ForestViewSet(ModelViewSet):
     authentication_classes = [authentication.TokenAuthentication]
     queryset = Forest.objects.all()
     serializer_class = ForestSerializer #(queryset, many=True)
+    
     def retrieve(self, request, *args, **kwargs):
         
         
@@ -33,22 +37,16 @@ class ForestViewSet(ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
     def get_queryset(self):
-        for f,v in  self.request.GET.items():
-            print(f,v)
 
         token =self.request.META.get('HTTP_AUTHORIZATION')
-        # print("list",token)
-
-        # token = token.split()[-1] if token else ""
-        print(token)
         
-        if token:
+        if token: 
             user = Token.objects.get(key=token).user
             if user.user_type == 2 :
-                print("ow", user)
+                # print("ow", user)
                 queryset = Forest.objects.filter(owner__user=user)
             elif user.user_type == 1 :
-                print("fu", user)
+                # print("fu", user)
                 queryset = Forest.objects.filter(state=Forest.STATE_COMPLETED)
             else:
                 queryset = self.queryset
@@ -110,9 +108,54 @@ class ForestViewSet(ModelViewSet):
         return Response(s.data)
         # elif (request.data.type=="login"):
         #     return "0"
+
+
+# access / create forests or single forest
+# returned items based on user type, like forests
 class RegionViewSet(ModelViewSet):
+    authentication_classes = [authentication.TokenAuthentication]
     queryset = Region.objects.all()
     serializer_class = RegionSerializer
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+    
+    def get_queryset(self):
+
+        token =self.request.META.get('HTTP_AUTHORIZATION')
+        # print("list",token)
+
+        # token = token.split()[-1] if token else ""
+        print(token)
+        
+        if token:
+            user = Token.objects.get(key=token).user
+            if user.user_type == 2 :
+                print("ow", user)
+                queryset = Region.objects.filter(forest__owner__user=user)
+                print([x.forest.owner for x in queryset], user)
+            elif user.user_type == 1 :
+                print("fu", user)
+                queryset = Region.objects.filter(forest__state=Forest.STATE_COMPLETED)
+                print([x.forest.state for x in queryset])
+            else:
+                queryset = self.queryset
+        else:
+            queryset = self.queryset
+
+        assert self.queryset is not None, (
+            "'%s' should either include a `queryset` attribute, "
+            "or override the `get_queryset()` method."
+            % self.__class__.__name__
+        )
+        
+        if isinstance(queryset, QuerySet):
+            # Ensure queryset is re-evaluated on each request.
+            queryset = queryset.all()
+            
+        return queryset
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -135,8 +178,7 @@ class RegionViewSet(ModelViewSet):
             forest.save(update_fields=['state'])
             return Response(serializer.data)
 
-        
-        
+# used in register user
 class UserViewSet(ModelViewSet):
     queryset = User.objects.filter(user_type=1)
     # queryset = User.objects.all()
@@ -168,6 +210,68 @@ class UserViewSet(ModelViewSet):
         # elif (request.data.type=="login"):
         #     return "0"
 
+# returns info of funder user, used in funding page
+class FunderUserViewSet(ModelViewSet):
+    authentication_classes = [authentication.TokenAuthentication]
+    queryset = FunderUser.objects.all()
+    serializer_class = FunderSerializer #(queryset, many=True)
+    def get_queryset(self):
+
+        token =self.request.META.get('HTTP_AUTHORIZATION')
+        # print("list",token)
+
+        # token = token.split()[-1] if token else ""
+        print(token)
+        
+        if token:
+            user = Token.objects.get(key=token).user
+            print(user)
+            queryset = FunderUser.objects.filter(user=user)
+            print(queryset)
+        else:
+            queryset = self.queryset
+
+        assert self.queryset is not None, (
+            "'%s' should either include a `queryset` attribute, "
+            "or override the `get_queryset()` method."
+            % self.__class__.__name__
+        )
+        
+        if isinstance(queryset, QuerySet):
+            # Ensure queryset is re-evaluated on each request.
+            queryset = queryset.all()
+            
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        print(serializer,"asdf")
+        return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        print("asdggf")
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=False)
+        print(serializer.errors, request.data)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
+# create region api, used by auth agent when they input region detail for forest
 class CreateRegionsView(generics.CreateAPIView):
     # serializer_class = RegionSerializer
     # queryset = Region.objects.all()
@@ -209,6 +313,7 @@ class CreateRegionsView(generics.CreateAPIView):
         forest.save(update_fields=['state'])
         return HttpResponse(status=200)
 
+# gets regions of a specific forest
 class ForestRegionView(generics.RetrieveAPIView):
     # serializer_class = ForestRegionSerializer
     # queryset = Forest.objects.all()
@@ -223,7 +328,7 @@ class ForestRegionView(generics.RetrieveAPIView):
         s = RegionSerializer(region, many=True)
         return Response(s.data)
 
-# under production
+# api to fund a project
 class FundRegionView(generics.UpdateAPIView):
     authentication_classes = [authentication.TokenAuthentication]
     def partial_update(self, request, *args, **kwargs):
@@ -238,7 +343,17 @@ class FundRegionView(generics.UpdateAPIView):
         CM = CertificateMaker()
         data=(region.area,1,forest.lat1, forest.long1, datetime.datetime.now())
         h=hashlib.sha256(str(data).encode())
-        asset = CM.createCertificate(h, forest.name, "temp url")
+
+        token = request.META.get('HTTP_AUTHORIZATION')
+        print(token)
+        user = Token.objects.get(key=token).user
+        funder = FunderUser.objects.get(user=user)
+        print(funder.use_address,"aaa")
+
+# todo: need to make transfer asset work in certificateMaker before passing in real receive address
+        # receive_address = funder.algo_address if funder.use_address else ''
+        receive_address = ''
+        asset = CM.createCertificate(h, forest.name, "temp url", request.data.get('amount'),receive_address)
         # certificates = region.certificates
         # print(certificates)
         # certificates.append(asset)
@@ -263,7 +378,7 @@ class FundRegionView(generics.UpdateAPIView):
 
 
 
-# under production
+# check if a region have duplicate area with previous entries
 class CheckRegionView(generics.RetrieveAPIView):
     authentication_classes = [authentication.TokenAuthentication]
     def retrieve(self, request, *args, **kwargs):

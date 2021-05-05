@@ -1,6 +1,8 @@
 """
 CertificateIndexer.py
 
+This is used in views.py
+
 CertificateIndexer.py desciribes a class used in order to search for data in the current state of the blockchain
 It provides methods for finding all certificate hashes inside of the Algorand blockchain,
 finding the value that belongs to the hash, and checking correctness of potential new certificate( prevents double-selling)

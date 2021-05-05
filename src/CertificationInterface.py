@@ -1,6 +1,8 @@
 """
 CertificationInterface.py
 
+This is used in views.py
+
 CertificationInterface.py implements core methods for log-in to Google Earth Engine, receiving user input,
 and calculating requested properties of selected forest such as the total amount of carbon stored and
 

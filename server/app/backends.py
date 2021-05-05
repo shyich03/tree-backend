@@ -1,3 +1,4 @@
+# defines custome backend allowing different type of users
 from django.contrib.auth.backends import ModelBackend
 from .models import User
 from django.contrib.auth.hashers import check_password

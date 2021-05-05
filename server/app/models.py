@@ -1,7 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.conf import settings
 from jsonfield import JSONField
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 
 # class User(models.Model):
 #     user_id = models.IntegerField()
@@ -32,6 +35,10 @@ class User(AbstractUser):
     user_type = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES, null=True)
     USERNAME_FIELD = 'username'
 
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
 class OwnerUser(models.Model):
     user = models.OneToOneField(User, related_name='owner_detail', on_delete=models.CASCADE, primary_key=True)
     paypal_email = models.CharField(max_length=200)
@@ -43,6 +50,8 @@ class AuthUser(models.Model):
 
 class FunderUser(models.Model):
     user = models.OneToOneField(User, related_name='funder_detail', on_delete=models.CASCADE, primary_key=True)
+    algo_address = models.CharField(max_length=200, blank=True, default="")
+    use_address = models.BooleanField(default=False)
 
 class Forest(models.Model):
     id = models.AutoField(primary_key=True)
