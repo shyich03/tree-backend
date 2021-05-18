@@ -15,7 +15,7 @@ download your google service account json file<br /><br />
 create a util.py file under the server folder<br />
 add variables path and path_key, representing path to CertificateInterface.py file and path to the service account json file<br /><br />
 python manage.py makemigrations<br />
-python manage.py migrate<br />
+python manage.py migrate --run-syncdb<br />
 python manage.py createsuperuser<br />
 python manage.py runserver <br /><br />
 
